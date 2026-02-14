@@ -1,0 +1,88 @@
+@page "{year:int?}/{month:int?}/{day:int?}/{hour:int?}"
+@model CalendarManagement.Pages.Calendar.CreateEventModel
+
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<div class="container mt-4">
+    <h1>Create Event</h1>
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Title" class="form-label"></label>
+                    <input asp-for="Input.Title" class="form-control" placeholder="Event title" />
+                    <span asp-validation-for="Input.Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Description" class="form-label"></label>
+                    <textarea asp-for="Input.Description" class="form-control" rows="3" placeholder="Event description (optional)"></textarea>
+                    <span asp-validation-for="Input.Description" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Input.StartDateTime" class="form-label"></label>
+                        <input asp-for="Input.StartDateTime" type="datetime-local" class="form-control" />
+                        <span asp-validation-for="Input.StartDateTime" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Input.EndDateTime" class="form-label"></label>
+                        <input asp-for="Input.EndDateTime" type="datetime-local" class="form-control" />
+                        <span asp-validation-for="Input.EndDateTime" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Location" class="form-label"></label>
+                    <input asp-for="Input.Location" class="form-control" placeholder="Location (optional)" />
+                    <span asp-validation-for="Input.Location" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.CreatedById" class="form-label"></label>
+                    <select asp-for="Input.CreatedById" class="form-select">
+                        <option value="">-- Select Organizer --</option>
+                        @foreach (var user in Model.AllUsers)
+                        {
+                            <option value="@user.Id">@user.Name (@user.Email)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.CreatedById" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Invite Users</label>
+                    <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                        @foreach (var user in Model.AllUsers)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="Input.SelectedUserIds" value="@user.Id"
+                                       id="user_@user.Id" @(Model.Input.SelectedUserIds.Contains(user.Id) ? "checked" : "") />
+                                <label class="form-check-label" for="user_@user.Id">
+                                    @user.Name (@user.Email)
+                                </label>
+                            </div>
+                        }
+                    </div>
+                    <small class="form-text text-muted">Select users to invite to this event</small>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                    <a asp-page="Month" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

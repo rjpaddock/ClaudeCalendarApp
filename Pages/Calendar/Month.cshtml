@@ -1,0 +1,98 @@
+@page "{year:int?}/{month:int?}"
+@model CalendarManagement.Pages.Calendar.MonthModel
+
+@{
+    ViewData["Title"] = $"Calendar - {Model.ViewModel.MonthName}";
+}
+
+<div class="container-fluid mt-3">
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-4 d-flex align-items-center">
+            <a asp-page="Month" asp-route-year="@(Model.ViewModel.Month == 1 ? Model.ViewModel.Year - 1 : Model.ViewModel.Year)"
+               asp-route-month="@(Model.ViewModel.Month == 1 ? 12 : Model.ViewModel.Month - 1)"
+               class="btn btn-outline-secondary me-2"
+               title="Previous Month">
+                <span aria-hidden="true">◄</span>
+            </a>
+            <h2 class="mb-0">@Model.ViewModel.MonthName</h2>
+            <a asp-page="Month" asp-route-year="@(Model.ViewModel.Month == 12 ? Model.ViewModel.Year + 1 : Model.ViewModel.Year)"
+               asp-route-month="@(Model.ViewModel.Month == 12 ? 1 : Model.ViewModel.Month + 1)"
+               class="btn btn-outline-secondary ms-2"
+               title="Next Month">
+                <span aria-hidden="true">►</span>
+            </a>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="btn-group" role="group">
+                <a asp-page="Month" asp-route-year="@(Model.ViewModel.Month == 1 ? Model.ViewModel.Year - 1 : Model.ViewModel.Year)"
+                   asp-route-month="@(Model.ViewModel.Month == 1 ? 12 : Model.ViewModel.Month - 1)"
+                   class="btn btn-outline-secondary">
+                    <span aria-hidden="true">◄</span> Previous
+                </a>
+                <a asp-page="Month" class="btn btn-outline-primary">Today</a>
+                <a asp-page="Month" asp-route-year="@(Model.ViewModel.Month == 12 ? Model.ViewModel.Year + 1 : Model.ViewModel.Year)"
+                   asp-route-month="@(Model.ViewModel.Month == 12 ? 1 : Model.ViewModel.Month + 1)"
+                   class="btn btn-outline-secondary">
+                    Next <span aria-hidden="true">►</span>
+                </a>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-page="CreateEvent" class="btn btn-success">+ Create Event</a>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <div class="btn-group" role="group">
+                <a asp-page="Month" class="btn btn-primary">Month</a>
+                <a asp-page="Week" class="btn btn-outline-primary">Week</a>
+                <a asp-page="Day" class="btn btn-outline-primary">Day</a>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-bordered calendar-month">
+        <thead>
+            <tr>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var week in Model.ViewModel.Weeks)
+            {
+                <tr>
+                    @foreach (var day in week)
+                    {
+                        <td class="calendar-day @(day.IsCurrentMonth ? "" : "other-month") @(day.IsToday ? "today" : "") day-cell-clickable"
+                            onclick="window.location.href='@Url.Page("CreateEvent", new { year = day.Date.Year, month = day.Date.Month, day = day.Date.Day })'">
+                            <div class="day-number">@day.Day</div>
+                            <div class="events-list">
+                                @foreach (var evt in day.Events.Take(3))
+                                {
+                                    <div class="event-item" onclick="event.stopPropagation()">
+                                        <a asp-page="EventDetails" asp-route-id="@evt.Id" class="event-link">
+                                            <strong>@evt.StartDateTime.ToString("h:mm tt")</strong> @evt.Title
+                                        </a>
+                                    </div>
+                                }
+                                @if (day.Events.Count > 3)
+                                {
+                                    <div class="event-item text-muted small">
+                                        +@(day.Events.Count - 3) more
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

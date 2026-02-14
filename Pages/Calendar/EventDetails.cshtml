@@ -1,0 +1,130 @@
+@page "{id:int}"
+@model CalendarManagement.Pages.Calendar.EventDetailsModel
+
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <h1>Event Details</h1>
+        </div>
+        <div class="col text-end">
+            <a asp-page="EditEvent" asp-route-id="@Model.ViewModel.Event.Id" class="btn btn-primary">Edit</a>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+            <a asp-page="Month" class="btn btn-secondary">Back to Calendar</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">@Model.ViewModel.Event.Title</h2>
+
+                    @if (!string.IsNullOrEmpty(Model.ViewModel.Event.Description))
+                    {
+                        <p class="card-text">@Model.ViewModel.Event.Description</p>
+                    }
+
+                    <hr />
+
+                    <dl class="row">
+                        <dt class="col-sm-3">Start Time</dt>
+                        <dd class="col-sm-9">
+                            @Model.ViewModel.Event.StartDateTime.ToString("dddd, MMMM d, yyyy")
+                            <br />
+                            @Model.ViewModel.Event.StartDateTime.ToString("h:mm tt")
+                        </dd>
+
+                        <dt class="col-sm-3">End Time</dt>
+                        <dd class="col-sm-9">
+                            @Model.ViewModel.Event.EndDateTime.ToString("dddd, MMMM d, yyyy")
+                            <br />
+                            @Model.ViewModel.Event.EndDateTime.ToString("h:mm tt")
+                        </dd>
+
+                        @if (!string.IsNullOrEmpty(Model.ViewModel.Event.Location))
+                        {
+                            <dt class="col-sm-3">Location</dt>
+                            <dd class="col-sm-9">📍 @Model.ViewModel.Event.Location</dd>
+                        }
+
+                        <dt class="col-sm-3">Organizer</dt>
+                        <dd class="col-sm-9">@Model.ViewModel.Event.CreatedBy.Name (@Model.ViewModel.Event.CreatedBy.Email)</dd>
+
+                        <dt class="col-sm-3">Created</dt>
+                        <dd class="col-sm-9">@Model.ViewModel.Event.CreatedAt.ToLocalTime().ToString("MMMM d, yyyy h:mm tt")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Attendees (@Model.ViewModel.Attendees.Count)</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.ViewModel.Attendees.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var attendee in Model.ViewModel.Attendees)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>@attendee.UserName</strong><br />
+                                        <small class="text-muted">@attendee.UserEmail</small>
+                                    </div>
+                                    <span class="badge @GetStatusBadgeClass(attendee.ResponseStatus)">
+                                        @attendee.ResponseStatus
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No attendees invited to this event.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the event "<strong>@Model.ViewModel.Event.Title</strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-page-handler="Delete" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.ViewModel.Event.Id" />
+                    <button type="submit" class="btn btn-danger">Delete Event</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(CalendarManagement.Models.ResponseStatus status)
+    {
+        return status switch
+        {
+            CalendarManagement.Models.ResponseStatus.Accepted => "bg-success",
+            CalendarManagement.Models.ResponseStatus.Declined => "bg-danger",
+            CalendarManagement.Models.ResponseStatus.Tentative => "bg-warning",
+            _ => "bg-secondary"
+        };
+    }
+}

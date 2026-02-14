@@ -1,0 +1,86 @@
+@model CalendarManagement.ViewModels.MonthCalendarViewModel
+
+@{
+    ViewData["Title"] = $"Calendar - {Model.MonthName}";
+}
+
+<div class="container-fluid mt-3">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <h2>@Model.MonthName</h2>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="btn-group" role="group">
+                <a asp-action="Month" asp-route-year="@(Model.Month == 1 ? Model.Year - 1 : Model.Year)"
+                   asp-route-month="@(Model.Month == 1 ? 12 : Model.Month - 1)"
+                   class="btn btn-outline-secondary">&laquo; Previous</a>
+                <a asp-action="Month" class="btn btn-outline-primary">Today</a>
+                <a asp-action="Month" asp-route-year="@(Model.Month == 12 ? Model.Year + 1 : Model.Year)"
+                   asp-route-month="@(Model.Month == 12 ? 1 : Model.Month + 1)"
+                   class="btn btn-outline-secondary">Next &raquo;</a>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="CreateEvent" class="btn btn-success">+ Create Event</a>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <div class="btn-group" role="group">
+                <a asp-action="Month" class="btn btn-primary">Month</a>
+                <a asp-action="Week" class="btn btn-outline-primary">Week</a>
+                <a asp-action="Day" class="btn btn-outline-primary">Day</a>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-bordered calendar-month">
+        <thead>
+            <tr>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var week in Model.Weeks)
+            {
+                <tr>
+                    @foreach (var day in week)
+                    {
+                        <td class="calendar-day @(day.IsCurrentMonth ? "" : "other-month") @(day.IsToday ? "today" : "")">
+                            <div class="day-number">
+                                <a asp-action="CreateEvent"
+                                   asp-route-year="@day.Date.Year"
+                                   asp-route-month="@day.Date.Month"
+                                   asp-route-day="@day.Date.Day"
+                                   class="day-link">@day.Day</a>
+                            </div>
+                            <div class="events-list">
+                                @foreach (var evt in day.Events.Take(3))
+                                {
+                                    <div class="event-item">
+                                        <a asp-action="EventDetails" asp-route-id="@evt.Id" class="event-link">
+                                            <strong>@evt.StartDateTime.ToString("h:mm tt")</strong> @evt.Title
+                                        </a>
+                                    </div>
+                                }
+                                @if (day.Events.Count > 3)
+                                {
+                                    <div class="event-item text-muted small">
+                                        +@(day.Events.Count - 3) more
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

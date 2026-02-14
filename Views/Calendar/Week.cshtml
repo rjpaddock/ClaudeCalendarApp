@@ -1,0 +1,79 @@
+@model CalendarManagement.ViewModels.WeekCalendarViewModel
+
+@{
+    ViewData["Title"] = $"Calendar - Week {Model.Week}";
+}
+
+<div class="container-fluid mt-3">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <h2>Week @Model.Week - @Model.StartDate.ToString("MMM d") to @Model.EndDate.ToString("MMM d, yyyy")</h2>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="btn-group" role="group">
+                <a asp-action="Week" asp-route-year="@Model.StartDate.AddDays(-7).Year"
+                   asp-route-week="@System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(Model.StartDate.AddDays(-7), System.Globalization.CalendarWeekRule.FirstDay, DayOfWeek.Sunday)"
+                   class="btn btn-outline-secondary">&laquo; Previous</a>
+                <a asp-action="Week" class="btn btn-outline-primary">This Week</a>
+                <a asp-action="Week" asp-route-year="@Model.StartDate.AddDays(7).Year"
+                   asp-route-week="@System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(Model.StartDate.AddDays(7), System.Globalization.CalendarWeekRule.FirstDay, DayOfWeek.Sunday)"
+                   class="btn btn-outline-secondary">Next &raquo;</a>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="CreateEvent" class="btn btn-success">+ Create Event</a>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <div class="btn-group" role="group">
+                <a asp-action="Month" class="btn btn-outline-primary">Month</a>
+                <a asp-action="Week" class="btn btn-primary">Week</a>
+                <a asp-action="Day" class="btn btn-outline-primary">Day</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="calendar-week">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Time</th>
+                    @foreach (var day in Model.Days)
+                    {
+                        <th class="@(day.IsToday ? "today" : "")">
+                            @day.DayName
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var hour in Model.Hours)
+                {
+                    <tr>
+                        <td class="time-slot">@hour:00</td>
+                        @foreach (var day in Model.Days)
+                        {
+                            <td class="@(day.IsToday ? "today" : "") timeslot-cell"
+                                onclick="window.location.href='@Url.Action("CreateEvent", new { year = day.Date.Year, month = day.Date.Month, day = day.Date.Day, hour = hour })'">
+                                @{
+                                    var hourEvents = day.Events.Where(e => e.StartDateTime.Hour == hour).ToList();
+                                }
+                                @foreach (var evt in hourEvents)
+                                {
+                                    <div class="event-block" onclick="event.stopPropagation()">
+                                        <a asp-action="EventDetails" asp-route-id="@evt.Id" class="event-link">
+                                            <strong>@evt.StartDateTime.ToString("h:mm tt")</strong><br />
+                                            @evt.Title
+                                        </a>
+                                    </div>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

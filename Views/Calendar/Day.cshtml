@@ -1,0 +1,108 @@
+@model CalendarManagement.ViewModels.DayCalendarViewModel
+
+@{
+    ViewData["Title"] = $"Calendar - {Model.DateFormatted}";
+}
+
+<div class="container-fluid mt-3">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <h2>@Model.DateFormatted</h2>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="btn-group" role="group">
+                <a asp-action="Day" asp-route-year="@Model.Date.AddDays(-1).Year"
+                   asp-route-month="@Model.Date.AddDays(-1).Month"
+                   asp-route-day="@Model.Date.AddDays(-1).Day"
+                   class="btn btn-outline-secondary">&laquo; Previous</a>
+                <a asp-action="Day" class="btn btn-outline-primary">Today</a>
+                <a asp-action="Day" asp-route-year="@Model.Date.AddDays(1).Year"
+                   asp-route-month="@Model.Date.AddDays(1).Month"
+                   asp-route-day="@Model.Date.AddDays(1).Day"
+                   class="btn btn-outline-secondary">Next &raquo;</a>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="CreateEvent" class="btn btn-success">+ Create Event</a>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <div class="btn-group" role="group">
+                <a asp-action="Month" class="btn btn-outline-primary">Month</a>
+                <a asp-action="Week" class="btn btn-outline-primary">Week</a>
+                <a asp-action="Day" class="btn btn-primary">Day</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="calendar-day">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Time</th>
+                            <th>Events</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var hour in Model.Hours)
+                        {
+                            <tr>
+                                <td class="time-slot">@hour:00</td>
+                                <td class="timeslot-cell"
+                                    onclick="window.location.href='@Url.Action("CreateEvent", new { year = Model.Date.Year, month = Model.Date.Month, day = Model.Date.Day, hour = hour })'">
+                                    @{
+                                        var hourEvents = Model.Events.Where(e => e.StartDateTime.Hour == hour).ToList();
+                                    }
+                                    @foreach (var evt in hourEvents)
+                                    {
+                                        <div class="event-block mb-2" onclick="event.stopPropagation()">
+                                            <a asp-action="EventDetails" asp-route-id="@evt.Id" class="event-link">
+                                                <div><strong>@evt.StartDateTime.ToString("h:mm tt") - @evt.EndDateTime.ToString("h:mm tt")</strong></div>
+                                                <div class="h5 mb-1">@evt.Title</div>
+                                                @if (!string.IsNullOrEmpty(evt.Location))
+                                                {
+                                                    <div class="text-muted small">📍 @evt.Location</div>
+                                                }
+                                            </a>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Events Summary</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Events.Any())
+                    {
+                        <p><strong>@Model.Events.Count</strong> event(s) scheduled for this day</p>
+                        <ul class="list-unstyled">
+                            @foreach (var evt in Model.Events)
+                            {
+                                <li class="mb-2">
+                                    <a asp-action="EventDetails" asp-route-id="@evt.Id">
+                                        <strong>@evt.StartDateTime.ToString("h:mm tt")</strong> - @evt.Title
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No events scheduled for this day.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
