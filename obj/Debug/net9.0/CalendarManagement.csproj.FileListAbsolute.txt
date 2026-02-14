@@ -442,3 +442,4 @@ D:\data\clients\Icon\Claude\Experiments\ClaudeCalendarApp\obj\Debug\net9.0\refin
 D:\data\clients\Icon\Claude\Experiments\ClaudeCalendarApp\obj\Debug\net9.0\CalendarManagement.pdb
 D:\data\clients\Icon\Claude\Experiments\ClaudeCalendarApp\obj\Debug\net9.0\CalendarManagement.genruntimeconfig.cache
 D:\data\clients\Icon\Claude\Experiments\ClaudeCalendarApp\obj\Debug\net9.0\ref\CalendarManagement.dll
+D:\Data\clients\Icon\Claude\Experiments\ClaudeCalendarApp\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

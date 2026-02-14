@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\CalendarManagement.csproj": {}
+    "D:\\Data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\CalendarManagement.csproj": {}
   },
   "projects": {
-    "D:\\data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\CalendarManagement.csproj": {
+    "D:\\Data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\CalendarManagement.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\CalendarManagement.csproj",
+        "projectUniqueName": "D:\\Data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\CalendarManagement.csproj",
         "projectName": "CalendarManagement",
-        "projectPath": "D:\\data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\CalendarManagement.csproj",
+        "projectPath": "D:\\Data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\CalendarManagement.csproj",
         "packagesPath": "C:\\Users\\rpadd\\.nuget\\packages\\",
-        "outputPath": "D:\\data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\obj\\",
+        "outputPath": "D:\\Data\\clients\\Icon\\Claude\\Experiments\\ClaudeCalendarApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
