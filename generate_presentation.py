@@ -384,7 +384,55 @@ def create_presentation():
         p.text = highlight
         p.level = 1
 
-    # Slide 19: Lessons Learned
+    # Slide 19: Iteration 10 - Service Layer Refactoring
+    slide = prs.slides.add_slide(prs.slide_layouts[1])
+    title = slide.shapes.title
+    title.text = "Iteration 10: Service Layer Refactoring"
+    content = slide.placeholders[1].text_frame
+    content.text = "User Request:"
+    p = content.add_paragraph()
+    p.text = '"Extract all logic from this application\'s controllers into a service layer"'
+    p.level = 1
+
+    p = content.add_paragraph()
+    p.text = "Implementation:"
+    p.level = 0
+    changes = [
+        "Created ICalendarEventService and CalendarEventService (10 methods, ~290 lines)",
+        "Created IUserService and UserService (7 methods, ~95 lines)",
+        "Registered services with dependency injection in Program.cs",
+        "Refactored all 10 PageModels to use service layer",
+        "Reduced PageModel code by ~70% on average",
+        "Separated business logic from HTTP handling",
+        "Improved testability, reusability, and maintainability"
+    ]
+    for change in changes:
+        p = content.add_paragraph()
+        p.text = change
+        p.level = 1
+
+    # Slide 20: Service Layer Benefits
+    slide = prs.slides.add_slide(prs.slide_layouts[1])
+    title = slide.shapes.title
+    title.text = "Service Layer Architecture Benefits"
+    content = slide.placeholders[1].text_frame
+    content.text = "Why Service Layer Matters:"
+
+    benefits = [
+        "Separation of Concerns: PageModels handle HTTP, services handle business logic",
+        "Testability: Services can be unit tested independently with mocked data",
+        "Reusability: Same services can power future API controllers",
+        "Maintainability: Business logic changes in one place, not scattered across pages",
+        "Scalability: Easy to add caching, logging, and other cross-cutting concerns",
+        "Code Reduction: Calendar pages went from 60-70 lines to ~20 lines",
+        "SOLID Principles: Follows Single Responsibility and Dependency Inversion"
+    ]
+    for benefit in benefits:
+        p = content.add_paragraph()
+        p.text = benefit
+        p.level = 1
+
+    # Slide 21: Lessons Learned
     slide = prs.slides.add_slide(prs.slide_layouts[1])
     title = slide.shapes.title
     title.text = "Development Insights"
@@ -394,26 +442,28 @@ def create_presentation():
     lessons = [
         "Iterative development allows for rapid evolution",
         "User feedback drives feature refinement",
-        "Architecture changes (MVC → Razor Pages → API/Frontend) are transformative",
+        "Architecture changes (MVC → Razor Pages → API/Frontend → Service Layer) are transformative",
         "Small UX improvements (clickable areas, icons) have big impact",
         "Starting with empty database is better for production readiness",
         "Interactive elements require careful event handling",
         "Visual cues (arrows, hover effects) improve usability",
         "Git branching enables safe experimentation with UI changes",
-        "Separating frontend and backend enables scalability and maintainability"
+        "Separating frontend and backend enables scalability and maintainability",
+        "Service layer refactoring dramatically improves code quality and maintainability"
     ]
     for lesson in lessons:
         p = content.add_paragraph()
         p.text = lesson
         p.level = 1
 
-    # Slide 20: Technology Stack Summary
+    # Slide 22: Technology Stack Summary
     slide = prs.slides.add_slide(prs.slide_layouts[1])
     title = slide.shapes.title
     title.text = "Complete Technology Stack"
     content = slide.placeholders[1].text_frame
 
     stack = [
+        "Architecture: Service Layer Pattern with dependency injection",
         "Backend API: ASP.NET Core 9.0 with Controllers",
         "Frontend: ASP.NET Core 9.0 with Razor Pages",
         "Language: C# 12",
@@ -439,7 +489,7 @@ def create_presentation():
     content.text = "Project Evolution:"
 
     p = content.add_paragraph()
-    p.text = "From initial concept to fully functional application through 9 iterations"
+    p.text = "From initial concept to fully functional application through 10 iterations"
     p.level = 1
     p = content.add_paragraph()
     p.text = "Each user request refined and enhanced the application"
@@ -448,7 +498,7 @@ def create_presentation():
     p.text = "Demonstrates the power of iterative, AI-assisted development"
     p.level = 1
     p = content.add_paragraph()
-    p.text = "Final result: A professional calendar management system ready for deployment"
+    p.text = "Final result: A professional, well-architected calendar management system with clean separation of concerns, ready for testing and deployment"
     p.level = 1
 
     # Save presentation

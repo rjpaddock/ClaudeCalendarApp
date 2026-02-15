@@ -1,19 +1,18 @@
-using CalendarManagement.Data;
 using CalendarManagement.Models;
+using CalendarManagement.Services;
 using CalendarManagement.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace CalendarManagement.Pages.Calendar
 {
     public class EditEventModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICalendarEventService _calendarEventService;
 
-        public EditEventModel(ApplicationDbContext context)
+        public EditEventModel(ICalendarEventService calendarEventService)
         {
-            _context = context;
+            _calendarEventService = calendarEventService;
         }
 
         [BindProperty]
@@ -23,9 +22,7 @@ namespace CalendarManagement.Pages.Calendar
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            var calendarEvent = await _context.CalendarEvents
-                .Include(e => e.Attendees)
-                .FirstOrDefaultAsync(e => e.Id == id);
+            var calendarEvent = await _calendarEventService.GetEventByIdAsync(id);
 
             if (calendarEvent == null)
             {
@@ -45,7 +42,7 @@ namespace CalendarManagement.Pages.Calendar
 
             // Store the ID for the form
             ViewData["EventId"] = id;
-            Input.AllUsers = await _context.Users.OrderBy(u => u.Name).ToListAsync();
+            Input.AllUsers = await _calendarEventService.GetAllUsersAsync();
             AllUsers = Input.AllUsers;
 
             return Page();
@@ -55,54 +52,27 @@ namespace CalendarManagement.Pages.Calendar
         {
             if (!ModelState.IsValid)
             {
-                AllUsers = await _context.Users.OrderBy(u => u.Name).ToListAsync();
+                AllUsers = await _calendarEventService.GetAllUsersAsync();
                 Input.AllUsers = AllUsers;
                 return Page();
             }
 
             // Validate end time is after start time
-            if (Input.EndDateTime <= Input.StartDateTime)
+            var validation = _calendarEventService.ValidateEventDates(Input.StartDateTime, Input.EndDateTime);
+            if (!validation.IsValid)
             {
-                ModelState.AddModelError("Input.EndDateTime", "End time must be after start time.");
-                AllUsers = await _context.Users.OrderBy(u => u.Name).ToListAsync();
+                ModelState.AddModelError("Input.EndDateTime", validation.ErrorMessage!);
+                AllUsers = await _calendarEventService.GetAllUsersAsync();
                 Input.AllUsers = AllUsers;
                 return Page();
             }
 
-            var calendarEvent = await _context.CalendarEvents
-                .Include(e => e.Attendees)
-                .FirstOrDefaultAsync(e => e.Id == id);
-
-            if (calendarEvent == null)
+            var updated = await _calendarEventService.UpdateEventAsync(id, Input);
+            if (!updated)
             {
                 return NotFound();
             }
 
-            calendarEvent.Title = Input.Title;
-            calendarEvent.Description = Input.Description;
-            calendarEvent.StartDateTime = Input.StartDateTime;
-            calendarEvent.EndDateTime = Input.EndDateTime;
-            calendarEvent.Location = Input.Location;
-            calendarEvent.CreatedById = Input.CreatedById;
-
-            // Update attendees
-            _context.EventAttendees.RemoveRange(calendarEvent.Attendees);
-
-            if (Input.SelectedUserIds != null && Input.SelectedUserIds.Any())
-            {
-                foreach (var userId in Input.SelectedUserIds)
-                {
-                    var attendee = new EventAttendee
-                    {
-                        EventId = calendarEvent.Id,
-                        UserId = userId,
-                        ResponseStatus = ResponseStatus.Pending
-                    };
-                    _context.EventAttendees.Add(attendee);
-                }
-            }
-
-            await _context.SaveChangesAsync();
             return RedirectToPage("EventDetails", new { id = id });
         }
     }

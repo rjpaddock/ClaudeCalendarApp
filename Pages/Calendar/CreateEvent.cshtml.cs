@@ -1,19 +1,18 @@
-using CalendarManagement.Data;
 using CalendarManagement.Models;
+using CalendarManagement.Services;
 using CalendarManagement.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace CalendarManagement.Pages.Calendar
 {
     public class CreateEventModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICalendarEventService _calendarEventService;
 
-        public CreateEventModel(ApplicationDbContext context)
+        public CreateEventModel(ICalendarEventService calendarEventService)
         {
-            _context = context;
+            _calendarEventService = calendarEventService;
         }
 
         [BindProperty]
@@ -41,55 +40,27 @@ namespace CalendarManagement.Pages.Calendar
             Input.StartDateTime = startDateTime;
             Input.EndDateTime = startDateTime.AddHours(1); // Default 1 hour duration
 
-            AllUsers = await _context.Users.OrderBy(u => u.Name).ToListAsync();
+            AllUsers = await _calendarEventService.GetAllUsersAsync();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
-                AllUsers = await _context.Users.OrderBy(u => u.Name).ToListAsync();
+                AllUsers = await _calendarEventService.GetAllUsersAsync();
                 return Page();
             }
 
             // Validate end time is after start time
-            if (Input.EndDateTime <= Input.StartDateTime)
+            var validation = _calendarEventService.ValidateEventDates(Input.StartDateTime, Input.EndDateTime);
+            if (!validation.IsValid)
             {
-                ModelState.AddModelError("Input.EndDateTime", "End time must be after start time.");
-                AllUsers = await _context.Users.OrderBy(u => u.Name).ToListAsync();
+                ModelState.AddModelError("Input.EndDateTime", validation.ErrorMessage!);
+                AllUsers = await _calendarEventService.GetAllUsersAsync();
                 return Page();
             }
 
-            var calendarEvent = new CalendarEvent
-            {
-                Title = Input.Title,
-                Description = Input.Description,
-                StartDateTime = Input.StartDateTime,
-                EndDateTime = Input.EndDateTime,
-                Location = Input.Location,
-                CreatedById = Input.CreatedById,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.CalendarEvents.Add(calendarEvent);
-            await _context.SaveChangesAsync();
-
-            // Add attendees
-            if (Input.SelectedUserIds != null && Input.SelectedUserIds.Any())
-            {
-                foreach (var userId in Input.SelectedUserIds)
-                {
-                    var attendee = new EventAttendee
-                    {
-                        EventId = calendarEvent.Id,
-                        UserId = userId,
-                        ResponseStatus = ResponseStatus.Pending
-                    };
-                    _context.EventAttendees.Add(attendee);
-                }
-                await _context.SaveChangesAsync();
-            }
-
+            await _calendarEventService.CreateEventAsync(Input);
             return RedirectToPage("Month");
         }
     }

@@ -1,27 +1,23 @@
-using CalendarManagement.Data;
 using CalendarManagement.Models;
+using CalendarManagement.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace CalendarManagement.Pages.Users
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUserService _userService;
 
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         public List<User> Users { get; set; } = new List<User>();
 
         public async Task OnGetAsync()
         {
-            Users = await _context.Users
-                .Include(u => u.CreatedEvents)
-                .OrderBy(u => u.Name)
-                .ToListAsync();
+            Users = await _userService.GetAllUsersAsync();
         }
     }
 }

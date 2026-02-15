@@ -1,18 +1,17 @@
-using CalendarManagement.Data;
 using CalendarManagement.Models;
+using CalendarManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace CalendarManagement.Pages.Users
 {
     public class DeleteModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUserService _userService;
 
-        public DeleteModel(ApplicationDbContext context)
+        public DeleteModel(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [BindProperty]
@@ -20,11 +19,7 @@ namespace CalendarManagement.Pages.Users
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            var user = await _context.Users
-                .Include(u => u.CreatedEvents)
-                .Include(u => u.EventAttendees)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var user = await _userService.GetUserWithDetailsAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -36,13 +31,7 @@ namespace CalendarManagement.Pages.Users
 
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-            }
-
+            await _userService.DeleteUserAsync(id);
             return RedirectToPage("Index");
         }
     }
